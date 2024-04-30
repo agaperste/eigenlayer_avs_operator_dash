@@ -26,7 +26,7 @@ jobs:
       - name: pip requirements
         run: pip install -r requirements.txt
 
-      - name: Calculate realized balance daily and upload the data to Dune
+      - name: Get the Eigenlayer operator metadata and upload it to Dune
         env:
           DUNE_API_KEY: ${{ secrets.DUNE_API_KEY }}
         run: python -u scripts/get_operator_metadata.py
