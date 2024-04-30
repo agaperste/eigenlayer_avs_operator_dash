@@ -14,8 +14,16 @@ def get_dune_client():
 # Function to run a query and retrieve metadata URIs along with operator addresses
 def fetch_metadata_uris(dune, query_id):
     query = QueryBase(name="Fetch Metadata URIs", query_id=query_id)
-    results_df = dune.run_query_dataframe(query)
-    return results_df[['metadataURI', 'operator']]  # Adjust column names as needed
+    attempts = 0
+    while attempts < 20:
+        try:
+            results_df = dune.run_query_dataframe(query)
+            return results_df[['metadataURI', 'operator']]  # Adjust column names as needed
+        except Exception as e:
+            attempts += 1
+            print(f"Failed to fetch metadata URIs. Attempt {attempts}. Error: {e}")
+    print("Failed to fetch metadata URIs after 20 attempts. Exiting script.")
+    exit(1)
 
 # Function to fetch and parse metadata from a URI, including the operator address
 def fetch_metadata(uri, operator_address):
