@@ -25,30 +25,41 @@ def fetch_metadata_uris(dune, query_id):
     print("Failed to fetch metadata URIs after 20 attempts. Exiting script.")
     exit(1)
 
+# Helper function to return default metadata dictionary
+def default_metadata(operator_address):
+    return {
+        'operator_name': '',
+        'operator_contract_address': operator_address,
+        'website': '',
+        'twitter': '',
+        'logo': '',
+        'description': ''
+    }
+
 # Function to fetch and parse metadata from a URI, including the operator address
 def fetch_metadata(uri, operator_address):
-    response = requests.get(uri)
-    if response.status_code == 200:
-        data = response.json()
-        return {
-            'operator_name': data.get('name', ''),
-            'operator_contract_address': operator_address,
-            'website': data.get('website', ''),
-            'twitter': data.get('twitter', ''),
-            'logo': data.get('logo', ''),
-            'description': data.get('description', '')
-        }
-    else:
-        print(f"Failed to fetch data for URI: {uri} with status code {response.status_code}")
-        return {
-            'operator_name': '',
-            'operator_contract_address': operator_address,
-            'website': '',
-            'twitter': '',
-            'logo': '',
-            'description': ''
-        }
+    if not uri:
+        print(f"Missing URI: {uri}")
+        return default_metadata(operator_address)
 
+    try:
+        response = requests.get(uri)
+        if response.status_code == 200:
+            data = response.json()
+            return {
+                'operator_name': data.get('name', ''),
+                'operator_contract_address': operator_address,
+                'website': data.get('website', ''),
+                'twitter': data.get('twitter', ''),
+                'logo': data.get('logo', ''),
+                'description': data.get('description', '')
+            }
+        else:
+            print(f"Failed to fetch data for URI: {uri} with status code {response.status_code}")
+            return default_metadata(operator_address)
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to fetch data for URI: {uri}. Error: {e}")
+        return default_metadata(operator_address)
 # Function to delete a table from Dune
 def delete_existing_table(dune, namespace, table_name):
     try:
